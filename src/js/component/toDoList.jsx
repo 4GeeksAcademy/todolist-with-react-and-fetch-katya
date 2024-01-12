@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 //create your first component
 const ToDoList = () => {
@@ -16,6 +16,27 @@ const ToDoList = () => {
     }
   }
 
+  useEffect(() => {
+
+   /* fetch('https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan')
+    .then(response => {
+        if (!response.ok) {
+            throw Error(response.statusText);
+        }
+        // Read the response as JSON
+        return response.json();
+    })
+    .then(savedTasks => {
+        // Do stuff with the JSONified response
+        setTasks(savedTasks.label);
+    })
+    .catch(error => {
+        console.log('Looks like there was a problem: \n', error);
+    });*/
+
+    
+  }, []);
+
   return (
     <div className="d-flex justify-content-center mt-3">
       <ul className="list-group col-4 p-0 paper rounded-0">
@@ -28,7 +49,6 @@ const ToDoList = () => {
             <input
               type="text"
               onChange={(e) => setNewTask(e.target.value)}
-              
               value={newTask}
               className={`form-control list-group-item ${
                 tasks.length > 0 ? "ps-5" : ""
