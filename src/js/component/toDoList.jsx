@@ -18,7 +18,7 @@ const ToDoList = () => {
 
   useEffect(() => {
 
-   /* fetch('https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan')
+   fetch('https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan')
     .then(response => {
         if (!response.ok) {
             throw Error(response.statusText);
@@ -28,13 +28,13 @@ const ToDoList = () => {
     })
     .then(savedTasks => {
         // Do stuff with the JSONified response
-        setTasks(savedTasks.label);
+        setTasks(savedTasks);
     })
     .catch(error => {
         console.log('Looks like there was a problem: \n', error);
-    });*/
+    });
 
-    
+
   }, []);
 
   return (
@@ -66,7 +66,7 @@ const ToDoList = () => {
               className="list-group-item ps-5 d-flex justify-content-between align-items-center"
               key={index}
             >
-              {task}{" "}
+              {task.label}{" "}
               <button
                 className="btn"
                 onClick={() =>
