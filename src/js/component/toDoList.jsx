@@ -5,9 +5,10 @@ const ToDoList = () => {
   const [tasks, setTasks] = useState([]);
   const database =
     "https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan";
-
+  
+//FETCH DATA
   useEffect(() => {
-
+    
     fetch(database)
       .then((response) => {
         if (!response.ok) {
@@ -43,6 +44,7 @@ const ToDoList = () => {
       });
   }, []);
 
+  //UPDATE TASKS WHEN TASKS ARE ADDED
   useEffect(() => {
     const updateTasksOnServer = async () => {
       try {
@@ -68,11 +70,12 @@ const ToDoList = () => {
         console.error("Error updating tasks:", error);
       }
     };
-
     updateTasksOnServer();
   }, [tasks]);
 
+
   function addTask(e) {
+
     e.preventDefault();
     if (newTask == "" || newTask.trim() == "") {
       alert("Please input a task");
@@ -80,9 +83,11 @@ const ToDoList = () => {
       setTasks((prev) => prev.concat([{ label: newTask, done: false }]));
       setNewTask("");
     }
-  }
+  };
 
+  //DELETE ALL TASKS
   function deleteAllTasks(e) {
+    
     fetch(database, {
       method: "DELETE",
       body: JSON.stringify(tasks),
@@ -102,7 +107,7 @@ const ToDoList = () => {
       .catch((error) => {
         console.log("Looks like there was a problem: \n", error);
       });
-  }
+  };
 
   return (
     <div className="d-flex justify-content-center mt-3">
