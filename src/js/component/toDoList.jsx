@@ -5,37 +5,63 @@ const ToDoList = () => {
   const [newTask, setNewTask] = useState("");
   const [tasks, setTasks] = useState([]);
 
-  function addTask(e) {
-    if (newTask == "" || newTask.trim() == "") {
-      alert("Please input a task");
-      e.preventDefault();
-    } else {
-      e.preventDefault();
-      setTasks((prev) => prev.concat([newTask]));
-      setNewTask("");
-    }
-  }
-
   useEffect(() => {
-
-   fetch('https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan')
-    .then(response => {
+    fetch("https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan")
+      .then((response) => {
         if (!response.ok) {
-            throw Error(response.statusText);
+          throw Error(response.statusText);
         }
         // Read the response as JSON
         return response.json();
-    })
-    .then(savedTasks => {
+      })
+      .then((savedTasks) => {
         // Do stuff with the JSONified response
         setTasks(savedTasks);
-    })
-    .catch(error => {
-        console.log('Looks like there was a problem: \n', error);
-    });
-
-
+      })
+      .catch((error) => {
+        console.log("Looks like there was a problem: \n", error);
+      });
   }, []);
+
+  useEffect(() => {
+    // Use a separate function for the fetch to make it cleaner
+    const updateTasksOnServer = async () => {
+      try {
+        const response = await fetch(
+          'https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan',
+          {
+            method: "PUT",
+            body: JSON.stringify(tasks),
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error("Error updating tasks:", error);
+      }
+    };
+
+    // Call the update function when tasks change
+    updateTasksOnServer();
+  }, [tasks]); 
+
+  function addTask(e) {
+    e.preventDefault();
+    if (newTask == "" || newTask.trim() == "") {
+      alert("Please input a task");
+    } else {
+      setTasks((prev) => prev.concat([{ label: newTask, done: false }]));
+      setNewTask("");
+    }
+  }
 
   return (
     <div className="d-flex justify-content-center mt-3">
