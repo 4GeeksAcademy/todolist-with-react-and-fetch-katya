@@ -2,6 +2,10 @@
     color: #0dcaf0 !important;
 }
 
+#master-trash:hover {
+    color: #9FA0A1 !important;
+}
+
 .paper {
     
     box-shadow:

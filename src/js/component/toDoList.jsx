@@ -1,48 +1,64 @@
 import React, { useEffect, useState } from "react";
 
-//create your first component
 const ToDoList = () => {
   const [newTask, setNewTask] = useState("");
   const [tasks, setTasks] = useState([]);
+  const database =
+    "https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan";
 
   useEffect(() => {
-    fetch("https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan")
+
+    fetch(database)
       .then((response) => {
         if (!response.ok) {
           throw Error(response.statusText);
         }
-        // Read the response as JSON
         return response.json();
       })
       .then((savedTasks) => {
-        // Do stuff with the JSONified response
         setTasks(savedTasks);
       })
       .catch((error) => {
-        console.log("Looks like there was a problem: \n", error);
+        if (error.status === 404) {
+          fetch(database, {
+            method: "POST",
+            body: JSON.stringify([]),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((resp) => {
+              console.log(resp.ok);
+              console.log(resp.status);
+              console.log(resp.text());
+              return resp.json();
+            })
+            .then((data) => {
+              console.log(data);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
       });
   }, []);
 
   useEffect(() => {
-  
     const updateTasksOnServer = async () => {
       try {
         if (tasks.length > 0) {
-          const response = await fetch(
-            'https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan',
-            {
-              method: "PUT",
-              body: JSON.stringify(tasks),
-              headers: {
-                "Content-Type": "application/json"
-              }
-            }
-          );
-  
+          const response = await fetch(database, {
+            method: "PUT",
+            body: JSON.stringify(tasks),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
-  
+
           const data = await response.json();
           console.log(data);
         } else {
@@ -52,7 +68,7 @@ const ToDoList = () => {
         console.error("Error updating tasks:", error);
       }
     };
-  
+
     updateTasksOnServer();
   }, [tasks]);
 
@@ -64,6 +80,28 @@ const ToDoList = () => {
       setTasks((prev) => prev.concat([{ label: newTask, done: false }]));
       setNewTask("");
     }
+  }
+
+  function deleteAllTasks(e) {
+    fetch(database, {
+      method: "DELETE",
+      body: JSON.stringify(tasks),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response.json();
+      })
+      .then((savedTasks) => {
+        setTasks(savedTasks);
+      })
+      .catch((error) => {
+        console.log("Looks like there was a problem: \n", error);
+      });
   }
 
   return (
@@ -118,7 +156,20 @@ const ToDoList = () => {
             ? "No pending tasks"
             : tasks.length == 1
             ? "1 pending task"
-            : `${tasks.length} pending tasks`}
+            : `${tasks.length} pending tasks`}{" "}
+          <button
+            type="button"
+            onClick={deleteAllTasks}
+            className="btn p-0 border-0"
+            data-bs-toggle="tooltip"
+            data-bs-placement="bottom"
+            data-bs-title="Delete all"
+          >
+            <i
+              id="master-trash"
+              className="fas fa-trash-alt text-white ms-2"
+            ></i>
+          </button>
         </li>
       </ul>
     </div>
