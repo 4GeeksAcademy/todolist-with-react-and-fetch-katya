@@ -24,34 +24,37 @@ const ToDoList = () => {
   }, []);
 
   useEffect(() => {
-    // Use a separate function for the fetch to make it cleaner
+  
     const updateTasksOnServer = async () => {
       try {
-        const response = await fetch(
-          'https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan',
-          {
-            method: "PUT",
-            body: JSON.stringify(tasks),
-            headers: {
-              "Content-Type": "application/json"
+        if (tasks.length > 0) {
+          const response = await fetch(
+            'https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan',
+            {
+              method: "PUT",
+              body: JSON.stringify(tasks),
+              headers: {
+                "Content-Type": "application/json"
+              }
             }
+          );
+  
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
           }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+  
+          const data = await response.json();
+          console.log(data);
+        } else {
+          console.log("No tasks to send in the PUT request");
         }
-
-        const data = await response.json();
-        console.log(data);
       } catch (error) {
         console.error("Error updating tasks:", error);
       }
     };
-
-    // Call the update function when tasks change
+  
     updateTasksOnServer();
-  }, [tasks]); 
+  }, [tasks]);
 
   function addTask(e) {
     e.preventDefault();
