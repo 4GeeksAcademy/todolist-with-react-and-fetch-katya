@@ -12,7 +12,7 @@ const ToDoList = () => {
     fetch(database)
       .then((response) => {
         if (!response.ok) {
-          throw Error(response.statusText);
+          throw Error(response.status);
         }
         return response.json();
       })
@@ -20,7 +20,8 @@ const ToDoList = () => {
         setTasks(savedTasks);
       })
       .catch((error) => {
-        if (error.status === 404) {
+        
+        if (error.message == 404) {
           fetch(database, {
             method: "POST",
             body: JSON.stringify([]),
@@ -28,11 +29,11 @@ const ToDoList = () => {
               "Content-Type": "application/json",
             },
           })
-            .then((resp) => {
-              console.log(resp.ok);
-              console.log(resp.status);
-              console.log(resp.text());
-              return resp.json();
+            .then((response) => {
+              if (!response.ok) {
+                throw Error(response.status);
+              }
+              return response.json();
             })
             .then((data) => {
               console.log(data);
@@ -102,7 +103,7 @@ const ToDoList = () => {
         return response.json();
       })
       .then((savedTasks) => {
-        setTasks(savedTasks);
+        setTasks([]);
       })
       .catch((error) => {
         console.log("Looks like there was a problem: \n", error);
