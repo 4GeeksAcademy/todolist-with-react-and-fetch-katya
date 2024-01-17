@@ -22,3 +22,7 @@
       /* Padding for demo purposes */
       padding: 30px;
   }
+
+  input::placeholder {
+    font-size: xx-small;
+  }

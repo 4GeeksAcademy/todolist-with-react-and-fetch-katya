@@ -5,52 +5,51 @@ const ToDoList = () => {
   const [tasks, setTasks] = useState([]);
   const [username, setUsername] = useState("");
   const [inputUsername, setInputUsername] = useState("");
-  const database = `https://playground.4geeks.com/apis/fake/todos/user/${username}`;
+  const database = `https://playground.4geeks.com/apis/fake/todos/user/${inputUsername}`;
 
   //FETCH DATA
   useEffect(() => {
     if (username) {
-      
-    fetch(database)
-      .then((response) => {
-        
-        if (!response.ok) {
-          throw Error(response.status);
-        }
-        return response.json();
-      })
-      .then((savedTasks) => {
-        setTasks(savedTasks);
-      })
-      .catch((error) => {
-        if (error.message == 404) {
-          fetch(database + username, {
-            method: "POST",
-            body: JSON.stringify([]),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw Error(response.status);
-              }
-              return response.json();
+      fetch(database)
+        .then((response) => {
+          if (!response.ok) {
+            throw Error(response.status);
+          }
+          return response.json();
+        })
+        .then((savedTasks) => {
+          setTasks(savedTasks);
+        })
+        .catch((error) => {
+         /*if (error.message == 404) {
+            fetch(database, {
+              method: "POST",
+              body: JSON.stringify([]),
+              headers: {
+                "Content-Type": "application/json",
+              },
             })
-            .then((data) => {
-              console.log(data);
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        }
-      })};
+              .then((response) => {
+                if (!response.ok) {
+                  throw Error(response.status);
+                }
+                return response.json();
+              })
+              .then((data) => {
+                console.log(data);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }*/
+        });
+    }
   }, [username]);
 
   //UPDATE TASKS WHEN TASKS ARE ADDED
   useEffect(() => {
     if (tasks.length > 0) {
-      fetch(database + username, {
+      fetch(database, {
         method: "PUT",
         body: JSON.stringify(tasks),
         headers: {
@@ -81,36 +80,40 @@ const ToDoList = () => {
       setTasks((prev) => prev.concat([{ label: newTask, done: false }]));
       setNewTask("");
     }
-  };
+  }
 
   function addUser(e) {
     e.preventDefault();
-    setUsername(inputUsername);
-    fetch(database + inputUsername, {
-      method: "POST",
-      body: JSON.stringify([]),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      console.log(data);
-    })
+    if (!inputUsername) {
+      alert("Please put your username");
+    } else {
+      setUsername(inputUsername);
+      fetch(database, {
+        method: "POST",
+        body: JSON.stringify([]),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+        })
 
-    .catch((error) => {
-      console.error("Error updating tasks:", error);
-    });
+        .catch((error) => {
+          console.error("Error updating tasks:", error);
+        });
+    }
   }
 
   //DELETE ALL TASKS
   function deleteAllTasks(e) {
-    fetch(database + username, {
+    fetch(database, {
       method: "DELETE",
       body: JSON.stringify(tasks),
       headers: {
@@ -142,6 +145,7 @@ const ToDoList = () => {
             <div>
               <input
                 type="text"
+                placeholder="Put your username"
                 onChange={(e) => setInputUsername(e.target.value)}
                 value={inputUsername}
                 className={`form-control list-group-item ${
