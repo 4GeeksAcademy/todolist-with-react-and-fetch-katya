@@ -3,14 +3,17 @@ import React, { useEffect, useState } from "react";
 const ToDoList = () => {
   const [newTask, setNewTask] = useState("");
   const [tasks, setTasks] = useState([]);
-  const database =
-    "https://playground.4geeks.com/apis/fake/todos/user/ekaterinachavan";
-  
-//FETCH DATA
+  const [username, setUsername] = useState("");
+  const [inputUsername, setInputUsername] = useState("");
+  const database = `https://playground.4geeks.com/apis/fake/todos/user/${username}`;
+
+  //FETCH DATA
   useEffect(() => {
-    
+    if (username) {
+      
     fetch(database)
       .then((response) => {
+        
         if (!response.ok) {
           throw Error(response.status);
         }
@@ -20,9 +23,8 @@ const ToDoList = () => {
         setTasks(savedTasks);
       })
       .catch((error) => {
-        
         if (error.message == 404) {
-          fetch(database, {
+          fetch(database + username, {
             method: "POST",
             body: JSON.stringify([]),
             headers: {
@@ -42,41 +44,36 @@ const ToDoList = () => {
               console.log(error);
             });
         }
-      });
-  }, []);
+      })};
+  }, [username]);
 
   //UPDATE TASKS WHEN TASKS ARE ADDED
   useEffect(() => {
-    const updateTasksOnServer = async () => {
-      try {
-        if (tasks.length > 0) {
-          const response = await fetch(database, {
-            method: "PUT",
-            body: JSON.stringify(tasks),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-
+    if (tasks.length > 0) {
+      fetch(database + username, {
+        method: "PUT",
+        body: JSON.stringify(tasks),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
-
-          const data = await response.json();
+          return response.json();
+        })
+        .then((data) => {
           console.log(data);
-        } else {
-          console.log("No tasks to send in the PUT request");
-        }
-      } catch (error) {
-        console.error("Error updating tasks:", error);
-      }
-    };
-    updateTasksOnServer();
+        })
+
+        .catch((error) => {
+          console.error("Error updating tasks:", error);
+        });
+    }
   }, [tasks]);
 
-
   function addTask(e) {
-
     e.preventDefault();
     if (newTask == "" || newTask.trim() == "") {
       alert("Please input a task");
@@ -86,10 +83,34 @@ const ToDoList = () => {
     }
   };
 
+  function addUser(e) {
+    e.preventDefault();
+    setUsername(inputUsername);
+    fetch(database + inputUsername, {
+      method: "POST",
+      body: JSON.stringify([]),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log(data);
+    })
+
+    .catch((error) => {
+      console.error("Error updating tasks:", error);
+    });
+  }
+
   //DELETE ALL TASKS
   function deleteAllTasks(e) {
-    
-    fetch(database, {
+    fetch(database + username, {
       method: "DELETE",
       body: JSON.stringify(tasks),
       headers: {
@@ -102,13 +123,13 @@ const ToDoList = () => {
         }
         return response.json();
       })
-      .then((savedTasks) => {
+      .then(() => {
         setTasks([]);
       })
       .catch((error) => {
         console.log("Looks like there was a problem: \n", error);
       });
-  };
+  }
 
   return (
     <div className="d-flex justify-content-center mt-3">
@@ -116,19 +137,34 @@ const ToDoList = () => {
         <h1 className="display-5 text-center list-group-item list-group-item-info m-0 text-primary-emphasis">
           My Tasks
         </h1>
+        {username == "" ? (
+          <form onSubmit={addUser}>
+            <div>
+              <input
+                type="text"
+                onChange={(e) => setInputUsername(e.target.value)}
+                value={inputUsername}
+                className={`form-control list-group-item ${
+                  tasks.length > 0 ? "ps-5" : ""
+                }`}
+              />
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={addTask}>
+            <div>
+              <input
+                type="text"
+                onChange={(e) => setNewTask(e.target.value)}
+                value={newTask}
+                className={`form-control list-group-item ${
+                  tasks.length > 0 ? "ps-5" : ""
+                }`}
+              />
+            </div>
+          </form>
+        )}
 
-        <form onSubmit={addTask}>
-          <div>
-            <input
-              type="text"
-              onChange={(e) => setNewTask(e.target.value)}
-              value={newTask}
-              className={`form-control list-group-item ${
-                tasks.length > 0 ? "ps-5" : ""
-              }`}
-            />
-          </div>
-        </form>
         {tasks.length == 0 ? (
           <li className="list-group-item text-success">
             Nothing to do! You can chill <i className="far fa-grin-stars"></i>
